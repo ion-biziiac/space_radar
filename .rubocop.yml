@@ -1,6 +1,9 @@
 AllCops:
   NewCops: disable
   TargetRubyVersion: 2.7.4
+  Exclude:
+    - 'bin/*'
+    - 'spec/spec_helper.rb'
 
 Style/SymbolArray:
   Enabled: false

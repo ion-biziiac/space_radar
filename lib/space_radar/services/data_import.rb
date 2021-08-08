@@ -1,6 +1,6 @@
 module SpaceRadar
   module Services
-    # +SpaceRadar::Services::DataImport+ creates SpaceRadar::Pattern instances 
+    # +SpaceRadar::Services::DataImport+ creates SpaceRadar::Pattern instances
     # based on the provided data files
     class DataImport
       RADAR_SCAN_PATH = 'lib/space_radar/data/radar_scan.txt'.freeze

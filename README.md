@@ -10,10 +10,24 @@ A Ruby application that takes an ASCII radar sample as an argument and reveals p
 bundle install
 ```
 
-## Run
+## Show help
 
+```bash
+bin/space-radar --help
 ```
-# TODO
+
+## Run with default data
+
+```bash
+bin/space-radar
+```
+
+## Run with custom data
+
+**Note:** All data files need to have the `txt` extension.
+
+```bash
+bin/space-radar --radar-scan-path spath/to/file.txt --known-items-dir-path path/to/folder
 ```
 
 ## Test

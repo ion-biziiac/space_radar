@@ -1,4 +1,3 @@
-require 'pry'
 describe SpaceRadar::Services::Scan do
   context 'with scan accuracy' do
     let(:data_importer) do
