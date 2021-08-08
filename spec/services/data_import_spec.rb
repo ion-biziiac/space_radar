@@ -33,8 +33,8 @@ describe SpaceRadar::Services::DataImport do
     expect(data_importer.items.size).to eq(1)
     item = data_importer.items.first
     expect(item).to be_a(SpaceRadar::Pattern)
-    expect(item.width).to eq(32)
-    expect(item.height).to eq(7)
+    expect(item.width).to eq(7)
+    expect(item.height).to eq(6)
   end
 
   it 'raises when the provided radar scan data file does not exist' do
@@ -83,7 +83,7 @@ describe SpaceRadar::Services::DataImport do
 
   it 'raises when the radar scan pattern is smaller than at least one known item' do
     data_importer = SpaceRadar::Services::DataImport.new(
-      radar_scan_path: 'spec/fixtures/radar_scan_10_x_10.txt',
+      radar_scan_path: 'spec/fixtures/radar_scan_10_x_5.txt',
       known_items_dir_path: 'spec/fixtures/known_items'
     )
     expect { data_importer.run }
