@@ -1,5 +1,5 @@
 AllCops:
-  DisabledByDefault: true
+  NewCops: disable
   TargetRubyVersion: 2.7.4
 
 Style/SymbolArray:
@@ -35,6 +35,9 @@ Metrics/AbcSize:
 Metrics/MethodLength:
   Enabled: true
   Max: 20
+
+Metrics/BlockLength:
+  IgnoredMethods: ['describe', 'context', 'it']
 
 Lint/RaiseException:
   Enabled: false

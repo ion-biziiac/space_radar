@@ -6,7 +6,8 @@ describe SpaceRadar::Pattern do
         'ooo',
         'o-o',
         '-o-'
-      ])
+      ]
+    )
   end
 
   describe '#signature' do
@@ -21,7 +22,8 @@ describe SpaceRadar::Pattern do
           'ooo',
           'o-o',
           '-o-'
-        ])
+        ]
+      )
     end
   end
 
@@ -51,13 +53,15 @@ describe SpaceRadar::Pattern do
           'o-o',
           'ooo',
           '-oo'
-        ])
+        ]
+      )
       other_pattern = SpaceRadar::Pattern.new(
         [
           '-oo-',
           'o-o-',
           '--oo'
-        ])
+        ]
+      )
 
       expect(pattern.match(some_pattern)).to eq(66.67)
       expect(pattern.match(other_pattern)).to eq(58.33)

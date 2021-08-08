@@ -12,7 +12,7 @@ module SpaceRadar
 
     # @return [String] - pattern signature represented as a single string
     def signature_string
-      @signature_string = signature.join('')
+      @signature_string ||= signature.join('')
     end
 
     # @return [Int] - pattern width
@@ -36,8 +36,8 @@ module SpaceRadar
       signature_size = signature_string.length
       distance = Vladlev.distance(
         signature_string,
-        pattern.signature_string,
-        signature_size)
+        pattern.signature_string
+      )
       ((signature_size - distance).to_f / signature_size * 100).round(2)
     end
   end
