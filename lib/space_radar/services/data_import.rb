@@ -37,13 +37,13 @@ module SpaceRadar
               "Invalid radar_scan_path value: #{@radar_scan_path}"
       end
 
-      # Imports the known patterns
+      # Imports the known items patterns
       def import_items_data
         validate_items_data_path
 
         Dir["#{@known_items_dir_path}/*.txt"].each do |file|
           item_data = File.read(file).strip
-          @items << Pattern.new(item_data.split(/\n/))
+          @items << Item.new(item_data.split(/\n/))
         end
       end
 

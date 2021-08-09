@@ -9,8 +9,8 @@ describe SpaceRadar::Services::Scan do
     let(:scanner) do
       data_importer.run
       SpaceRadar::Services::Scan.new(
-        data_importer.radar_scan,
-        data_importer.items
+        radar_scan: data_importer.radar_scan,
+        known_items: data_importer.items
       )
     end
 
@@ -28,149 +28,298 @@ describe SpaceRadar::Services::Scan do
     it 'finds more matches when the accuracy is set to 75%' do
       scanner.accuracy = 75
       results = scanner.run
-      expect(results.size).to eq(3)
-      expect(results.map { |r| r[:match] }).to eq([80.95, 90.48, 78.57])
+      expect(results.size).to eq(4)
+      expect(results.map { |r| r[:match] }.sort).to eq([76.19, 78.57, 80.95, 90.48])
     end
   end
 
-  context 'with scanning radar pattern edges' do
+  context 'with scanning radar pattern edges and corners' do
     let(:item) do
-      radar_data = File.read('spec/fixtures/known_items/item.txt')
-      SpaceRadar::Pattern.new(radar_data.strip.split(/\n/))
+      item_data = File.read('spec/fixtures/known_items/item.txt')
+      SpaceRadar::Item.new(item_data.strip.split(/\n/))
     end
 
-    it 'scans the top edge for partial items match' do
-      radar_scan = SpaceRadar::Pattern.new(
-        [
-          'o--o---oo-o-',
-          'o-oo-oooo--o',
-          '--oo-o--o-o-',
-          '-o----o-o---',
-          '---o-------o',
-          '-o---o--o---',
-          '---o----o---',
-          '--o-------o-',
-          'o---o------o',
-          '-o----o-----'
-        ]
-      )
-      scanner = SpaceRadar::Services::Scan.new(radar_scan, [item])
-      results = scanner.run
-      expect(results.size).to eq(1)
+    context 'scan the top edge for partial items match' do
+      let(:radar_scan) do
+        SpaceRadar::Pattern.new(
+          [
+            'o--o---oo-o-',
+            'o-oo-oooo--o',
+            '--oo-o--o-o-',
+            '-o----o-o---',
+            '---o-------o',
+            '-o---o--o---',
+            '---o----o---',
+            '--o-------o-',
+            'o---o------o',
+            '-o----o-----'
+          ]
+        )
+      end
+      subject { build_scan_result(radar_scan, [item]) }
 
-      found_result = results.first
-      expect(found_result[:x]).to eq(2)
-      expect(found_result[:y]).to eq(0)
-      expect(found_result[:match]).to eq(85.71)
-      expect(found_result[:item].signature).to eq(
-        [
-          'oo---oo',
-          'ooooooo',
-          'oo-o-oo'
-        ]
-      )
-    end
-
-    it 'scans the bottom edge for partial items match' do
-      radar_scan = SpaceRadar::Pattern.new(
-        [
-          'o--o-o-o--o-',
-          'o--o-o--o--o',
-          'o--o-o--o-o-',
-          '-o----o-o---',
-          '---o---o---o',
-          '-o---o--o---',
-          '-oooo---o---',
-          '--o---oooo--',
-          'o---o-oo--o-',
-          '-o---ooo---o'
-        ]
-      )
-      scanner = SpaceRadar::Services::Scan.new(radar_scan, [item])
-      results = scanner.run
-      expect(results.size).to eq(1)
-
-      found_result = results.first
-      expect(found_result[:x]).to eq(5)
-      expect(found_result[:y]).to eq(6)
-      expect(found_result[:match]).to eq(82.14)
-      expect(found_result[:item].signature).to eq(
-        [
-          '---o---',
-          '--ooo--',
-          'oo---oo',
-          'oo---oo'
-        ]
+      it_should_behave_like(
+        'a scan result with properties',
+        {
+          x: 2,
+          y: 0,
+          match: 85.71,
+          signature: [
+            'oo---oo',
+            'ooooooo',
+            'oo-o-oo'
+          ]
+        }
       )
     end
 
-    it 'scans the left edge for partial items match' do
-      radar_scan = SpaceRadar::Pattern.new(
-        [
-          'o--o-o-o--o-',
-          '-----o--o--o',
-          'oo---o--o-o-',
-          '-ooo--o----o',
-          '--oo---o--o-',
-          'o-oo-o---o--',
-          'o-o-oo---o-o-',
-          '--o-----o--o',
-          'o---o----o--',
-          '-o---o-o---o'
-        ]
-      )
-      scanner = SpaceRadar::Services::Scan.new(radar_scan, [item])
-      results = scanner.run
-      expect(results.size).to eq(1)
+    context 'scan the bottom edge for partial items match' do
+      let(:radar_scan) do
+        SpaceRadar::Pattern.new(
+          [
+            'o--o-o-o--o-',
+            'o--o-o--o--o',
+            'o--o-o--o-o-',
+            '-o----o-o---',
+            '---o---o---o',
+            '-o---o--o---',
+            '-oooo---o---',
+            '--o---oooo--',
+            'o---o-oo--o-',
+            '-o---ooo---o'
+          ]
+        )
+      end
+      subject { build_scan_result(radar_scan, [item]) }
 
-      found_result = results.first
-      expect(found_result[:x]).to eq(0)
-      expect(found_result[:y]).to eq(1)
-      expect(found_result[:match]).to eq(83.33)
-      expect(found_result[:item].signature).to eq(
-        [
-          'o---',
-          'oo--',
-          '--oo',
-          '--oo',
-          'oooo',
-          'o-oo'
-        ]
+      it_should_behave_like(
+        'a scan result with properties',
+        {
+          x: 5,
+          y: 6,
+          match: 82.14,
+          signature: [
+            '---o---',
+            '--ooo--',
+            'oo---oo',
+            'oo---oo'
+          ]
+        }
       )
     end
 
-    it 'scans the right edge for partial items match' do
-      radar_scan = SpaceRadar::Pattern.new(
-        [
-          'o--o-o-o--o-',
-          'o--o-o--o--o',
-          'o--o-o--o-o-',
-          '-o----o----o',
-          '---o---o--o-',
-          '-o---o---o--',
-          '-o--o---o---',
-          '--o-----oo-o',
-          'o---o--ooo-o',
-          '-o---o-o---o'
-        ]
-      )
-      scanner = SpaceRadar::Services::Scan.new(radar_scan, [item])
-      results = scanner.run
-      expect(results.size).to eq(1)
+    context 'scan the left edge for partial items match' do
+      let(:radar_scan) do
+        SpaceRadar::Pattern.new(
+          [
+            'o--o-o-o--o-',
+            '-----o--o--o',
+            'oo---o--o-o-',
+            '-ooo--o----o',
+            '--oo---o--o-',
+            'o-oo-o---o--',
+            'o-o-o----o-o',
+            '--o-----o--o',
+            'o---o----o--',
+            '-o---o-o---o'
+          ]
+        )
+      end
+      subject { build_scan_result(radar_scan, [item]) }
 
-      found_result = results.first
-      expect(found_result[:x]).to eq(8)
-      expect(found_result[:y]).to eq(3)
-      expect(found_result[:match]).to eq(83.33)
-      expect(found_result[:item].signature).to eq(
-        [
-          '---o',
-          '--oo',
-          'oo--',
-          'oo--',
-          'oooo',
-          'oo-o'
-        ]
+      it_should_behave_like(
+        'a scan result with properties',
+        {
+          x: 0,
+          y: 1,
+          match: 83.33,
+          signature: [
+            'o---',
+            'oo--',
+            '--oo',
+            '--oo',
+            'oooo',
+            'o-oo'
+          ]
+        }
+      )
+    end
+
+    context 'scan the right edge for partial items match' do
+      let(:radar_scan) do
+        SpaceRadar::Pattern.new(
+          [
+            'o--o-o-o--o-',
+            'o--o-o--o--o',
+            'o--o-o--o-o-',
+            '-o----o----o',
+            '---o---o--o-',
+            '-o---o---o--',
+            '-o--o---o---',
+            '--o-----oo-o',
+            'o---o--ooo-o',
+            '-o---o-o---o'
+          ]
+        )
+      end
+      subject { build_scan_result(radar_scan, [item]) }
+
+      it_should_behave_like(
+        'a scan result with properties',
+        {
+          x: 8,
+          y: 3,
+          match: 83.33,
+          signature: [
+            '---o',
+            '--oo',
+            'oo--',
+            'oo--',
+            'oooo',
+            'oo-o'
+          ]
+        }
+      )
+    end
+
+    context 'scan the top left corner for partial items match' do
+      let(:radar_scan) do
+        SpaceRadar::Pattern.new(
+          [
+            '---o---oo-o-',
+            '--o--o-oo--o',
+            'oo-o-o--o-o-',
+            'o-oo--o-o---',
+            '---o-------o',
+            '-o---o--o---',
+            '---o----o---',
+            '--o-------o-',
+            'o---o------o',
+            '-o----o-----'
+          ]
+        )
+      end
+      subject { build_scan_result(radar_scan, [item]) }
+
+      it_should_behave_like(
+        'a scan result with properties',
+        {
+          x: 0,
+          y: 0,
+          match: 81.25,
+          signature: [
+            '--oo',
+            '--oo',
+            'oooo',
+            'o-oo'
+          ]
+        }
+      )
+    end
+
+    context 'scan the top right corner for partial items match' do
+      let(:radar_scan) do
+        SpaceRadar::Pattern.new(
+          [
+            'o--o---o-o--',
+            '--o--o--oo--',
+            'o--o-o--o-oo',
+            'o--o-o--oo-o',
+            '---o-------o',
+            '-o---o--o---',
+            '---o----o---',
+            '--o-------o-',
+            'o---o------o',
+            '-o----o-----'
+          ]
+        )
+      end
+      subject { build_scan_result(radar_scan, [item]) }
+
+      it_should_behave_like(
+        'a scan result with properties',
+        {
+          x: 7,
+          y: 0,
+          match: 80.0,
+          signature: [
+            'oo---',
+            'oo---',
+            'ooooo',
+            'oo-o-'
+          ]
+        }
+      )
+    end
+
+    context 'scan the bottom right corner for partial items match' do
+      let(:radar_scan) do
+        SpaceRadar::Pattern.new(
+          [
+            'o--o---o-o--',
+            '--o--o---o--',
+            'o--o-o--o--o',
+            'o--o-o---o-o',
+            '---o-------o',
+            '-o---o----o-',
+            '---o------oo',
+            '--o----o----',
+            'o---o---o---',
+            '-o----oo-ooo'
+          ]
+        )
+      end
+      subject { build_scan_result(radar_scan, [item]) }
+
+      it_should_behave_like(
+        'a scan result with properties',
+        {
+          x: 7,
+          y: 5,
+          match: 84.0,
+          signature: [
+            '---o-',
+            '--ooo',
+            'oo---',
+            'oo---',
+            'ooooo'
+          ]
+        }
+      )
+    end
+
+    context 'scan the bottom left corner for partial items match' do
+      let(:radar_scan) do
+        SpaceRadar::Pattern.new(
+          [
+            'o--o---o-o--',
+            '--o--o---o--',
+            'o--o-o--o--o',
+            'o--o-o---o-o',
+            '---o-------o',
+            '-o---o----o-',
+            '-o--------o-',
+            'o-o----o---o',
+            '-o-o----o-o-',
+            '---oo-o--o-o'
+          ]
+        )
+      end
+      subject { build_scan_result(radar_scan, [item]) }
+
+      it_should_behave_like(
+        'a scan result with properties',
+        {
+          x: 0,
+          y: 6,
+          match: 85.0,
+          signature: [
+            '-o---',
+            'ooo--',
+            '---oo',
+            '---oo'
+          ]
+        }
       )
     end
   end

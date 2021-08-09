@@ -17,9 +17,9 @@ module SpaceRadar
     def scan
       @radar_scan, @known_items = import_data
       @results = Services::Scan.new(
-        @radar_scan,
-        @known_items,
-        MATCH_ACCURACY
+        radar_scan: @radar_scan,
+        known_items: @known_items,
+        accuracy: MATCH_ACCURACY
       ).run
     rescue ArgumentError => e
       puts "Error: #{e.message}"
@@ -29,21 +29,11 @@ module SpaceRadar
     def draw
       return unless @radar_scan && @known_items
 
-      screen = Array.new(@radar_scan.height)
-      screen.each_index do |i|
-        screen[i] = Array.new(@radar_scan.width, '-').join('')
-      end
-
-      results.each do |result|
-        result[:item].signature.each_with_index do |line, line_y|
-          row_index = result[:y] + line_y
-          char_index_range = result[:x]..result[:x] + result[:item].width - 1
-          screen[row_index][char_index_range] = line
-        end
-      end
-
-      puts "\033[0;32m"
-      puts screen.join("\n")
+      Services::ScreenDraw.new(
+        results: @results,
+        width: @radar_scan.width,
+        height: @radar_scan.height
+      ).run
     end
 
     private
@@ -63,7 +53,7 @@ module SpaceRadar
       [data_importer.radar_scan, data_importer.items]
     end
 
-    # Read the coomand line options
+    # Read the command line options
     def fetch_options
       options = {}
       opts = GetoptLong.new(

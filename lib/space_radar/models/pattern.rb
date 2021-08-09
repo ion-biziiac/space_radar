@@ -40,5 +40,18 @@ module SpaceRadar
       )
       ((signature_size - distance).to_f / signature_size * 100).round(2)
     end
+
+    # Crops a portion of the pattern signature and
+    # creates a new Pattern instance with the new signature
+    # @param x_pos [Int] - the X position on the pattern signature
+    # @param y_pos [Int] - the Y position on the pattern signature
+    # @param rows [Int] - the number of rows to be cropped
+    # @param cols [Int] - the number of cols to be cropped
+    def crop(x_pos, y_pos, rows, cols)
+      lines = signature[y_pos..y_pos + cols - 1].map do |line|
+        line[x_pos..x_pos + rows - 1]
+      end
+      self.class.new(lines)
+    end
   end
 end

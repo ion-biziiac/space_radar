@@ -1,4 +1,8 @@
 require_relative 'space_radar/models/pattern'
+require_relative 'space_radar/models/item'
 require_relative 'space_radar/services/data_import'
 require_relative 'space_radar/services/scan'
+require_relative 'space_radar/services/scan/items_collect'
+require_relative 'space_radar/services/scan/results_collect'
+require_relative 'space_radar/services/screen_draw'
 require_relative 'space_radar/radar'
